@@ -4,9 +4,11 @@ from sklearn.model_selection import train_test_split
 import logging
 import yaml
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Ensure the "logs" directory exists
-log_dir = 'logs'
+log_dir = os.path.join(PROJECT_ROOT, 'logs')
 os.makedirs(log_dir, exist_ok=True)
 
 
@@ -86,14 +88,14 @@ def save_data(train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str)
 
 def main():
     try:
-        params = load_params(params_path=r'C:\Users\Arnab\OneDrive\Desktop\code\mlops\MLOPS-ML-PIPELINE\params.yaml')
+        params = load_params(params_path=os.path.join(PROJECT_ROOT, 'params.yaml'))
         test_size = params['data_ingestion']['test_size']
         #test_size = 0.2
-        data_path = r'C:\Users\Arnab\OneDrive\Desktop\code\mlops\MLOPS-ML-PIPELINE\experiments\spam.csv'
+        data_path = os.path.join(PROJECT_ROOT, 'experiments', 'spam.csv')
         df = load_data(data_url=data_path)
         final_df = preprocess_data(df)
         train_data, test_data = train_test_split(final_df, test_size=test_size, random_state=2)
-        save_data(train_data, test_data, data_path='./data')
+        save_data(train_data, test_data, data_path=os.path.join(PROJECT_ROOT, 'data'))
     except Exception as e:
         logger.error('Failed to complete the data ingestion process: %s', e)
         print(f"Error: {e}")

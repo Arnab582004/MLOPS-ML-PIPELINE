@@ -9,8 +9,12 @@ import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
 
+STEMMER = PorterStemmer()
+STOP_WORDS = set(stopwords.words('english'))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Ensure the "logs" directory exists
-log_dir = 'logs'
+log_dir = os.path.join(PROJECT_ROOT, 'logs')
 os.makedirs(log_dir, exist_ok=True)
 
 # Setting up logger
@@ -35,17 +39,18 @@ def transform_text(text):
     """
     Transforms the input text by converting it to lowercase, tokenizing, removing stopwords and punctuation, and stemming.
     """
-    ps = PorterStemmer()
     # Convert to lowercase
-    text = text.lower()
+    if pd.isna(text):
+        return ""
+    text = str(text).lower()
     # Tokenize the text
     text = nltk.word_tokenize(text)
     # Remove non-alphanumeric tokens
     text = [word for word in text if word.isalnum()]
     # Remove stopwords and punctuation
-    text = [word for word in text if word not in stopwords.words('english') and word not in string.punctuation]
+    text = [word for word in text if word not in STOP_WORDS and word not in string.punctuation]
     # Stem the words
-    text = [ps.stem(word) for word in text]
+    text = [STEMMER.stem(word) for word in text]
     # Join the tokens back into a single string
     return " ".join(text)
 
@@ -82,8 +87,9 @@ def main(text_column='text', target_column='target'):
     """
     try:
         # Fetch the data from data/raw
-        train_data = pd.read_csv('./data/raw/train.csv')
-        test_data = pd.read_csv('./data/raw/test.csv')
+        raw_data_dir = os.path.join(PROJECT_ROOT, 'data', 'raw')
+        train_data = pd.read_csv(os.path.join(raw_data_dir, 'train.csv'))
+        test_data = pd.read_csv(os.path.join(raw_data_dir, 'test.csv'))
         logger.debug('Data loaded properly')
 
         # Transform the data
@@ -91,7 +97,7 @@ def main(text_column='text', target_column='target'):
         test_processed_data = preprocess_df(test_data, text_column, target_column)
 
         # Store the data inside data/processed
-        data_path = os.path.join("./data", "interim")
+        data_path = os.path.join(PROJECT_ROOT, 'data', 'interim')
         os.makedirs(data_path, exist_ok=True)
         
         train_processed_data.to_csv(os.path.join(data_path, "train_processed.csv"), index=False)

@@ -62,8 +62,8 @@ stages:
       nfiles: 2
     - path: src/model_training.py
       hash: md5
-      md5: dab8becb5607e0cc85f0139456ab441b
-      size: 4620
+      md5: 1e97a00c6a7bfe58a791bebb19238038
+      size: 4624
     params:
       params.yaml:
         model_building.n_estimators: 22
